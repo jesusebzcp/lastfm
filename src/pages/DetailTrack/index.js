@@ -71,7 +71,6 @@ const DetailArtist = ({ route }) => {
   useEffect(() => {
     getLikesDb();
   }, [getLikesDb]);
-  console.log('openModal', openModal);
 
   return (
     <>

@@ -66,7 +66,7 @@ const Search = ({
             position: 'absolute',
             width: Metrics.screenWidth - 20,
             zIndex: 3,
-            bottom: 155,
+            bottom: Metrics.screenHeight / 3,
           }}
         >
           {searchArtists.map((artist, index) => {

@@ -34,7 +34,6 @@ export const getArtists = async (dispatch, limit) => {
   }
 };
 export const searchArtistsAction = async (word, dispatch) => {
-  console.log('searchArtists');
   try {
     setLoading(true, dispatch);
 
@@ -47,7 +46,6 @@ export const searchArtistsAction = async (word, dispatch) => {
       return;
     }
     setLoading(false, dispatch);
-    console.log(response.data.results.artistmatches);
     dispatch({
       type: GET_SEARCH,
       payload: response.data.results.artistmatches.artist,
