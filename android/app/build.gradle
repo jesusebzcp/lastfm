@@ -78,7 +78,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true,  // clean and rebuild if changing
 ]
 project.ext.envConfigFiles = [
     debug  : '.env',
@@ -137,6 +137,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true 
     }
     splits {
         abi {
@@ -188,6 +189,8 @@ dependencies {
     implementation project(':react-native-config')
     apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation project(':react-native-vector-icons')
+    apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'

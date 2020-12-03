@@ -6,6 +6,7 @@ const colors = {
     primaryColor: '#C4C4C4',
     secondaryColor: '#373737',
   },
+  cancel: '#FF6666',
   dark: '#333333',
   gray: '#adadad',
   lightGray: '#D3D3D3',
