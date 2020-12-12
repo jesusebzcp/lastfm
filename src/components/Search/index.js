@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextInput, View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Cancel from 'react-native-vector-icons/MaterialIcons';
 
 //Theme
 import { Colors, Fonts, Metrics } from '../../theme';
+
+//Components
+import ModalApp from '../ModalApp';
+import ModalArtist from '../ModalArtist';
 
 const Search = ({
   placeholder,
@@ -14,9 +18,16 @@ const Search = ({
   resetSearch,
   dispatch,
 }) => {
+  const [openModal, setOpenModal] = useState(false);
+  const [dataArtist, setDataArtist] = useState(null);
+
   const handleReset = () => {
     setWord('');
     resetSearch(dispatch);
+  };
+  const handleDetail = (artist) => {
+    setOpenModal(true);
+    setDataArtist(artist);
   };
   return (
     <>
@@ -31,7 +42,7 @@ const Search = ({
             onPress={() => handleReset()}
             style={{ position: 'absolute', zIndex: 2, right: 20 }}
           >
-            <Cancel name={'cancel'} size={15} color={Colors.cancel} />
+            <Cancel name={'cancel'} size={20} color={Colors.cancel} />
           </TouchableOpacity>
         ) : (
           <View style={{ position: 'absolute', zIndex: 2, right: 20 }}>
@@ -71,7 +82,10 @@ const Search = ({
         >
           {searchArtists.map((artist, index) => {
             return (
-              <TouchableOpacity key={index}>
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleDetail(artist)}
+              >
                 <Text
                   style={[
                     Fonts.style.regular(Colors.gray, Fonts.size.small, 'left'),
@@ -95,10 +109,17 @@ const Search = ({
               Fonts.style.regular(Colors.light, Fonts.size.small, 'center'),
             ]}
           >
-            {searchArtists.length} Resultados
+            {searchArtists.length} Results
           </Text>
         </View>
       )}
+      <ModalApp
+        open={openModal}
+        close={setOpenModal}
+        title={'Artist information'}
+      >
+        <ModalArtist artist={dataArtist} />
+      </ModalApp>
     </>
   );
 };

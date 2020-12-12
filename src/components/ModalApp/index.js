@@ -1,43 +1,91 @@
 import React from 'react';
-import { Modal, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+
+import Modal from 'react-native-modal';
 import Cancel from 'react-native-vector-icons/MaterialIcons';
 
-//Theme
-import { Metrics, Colors } from '../../theme';
+//Ui
+import { Colors, Fonts } from '../../theme';
 
-const ModalApp = ({ children, open, close }) => {
+const ModalApp = ({ open, children, close, title }) => {
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={open}
-      onRequestClose={() => close(false)}
-    >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.cancel} onPress={() => close(false)}>
-            <Cancel name={'cancel'} size={30} color={Colors.cancel} />
-          </TouchableOpacity>
+    <>
+      <Modal
+        onSwipeComplete={() => close(false)}
+        swipeDirection={['down']}
+        isVisible={open}
+        backdropColor={Colors.dark}
+        useNativeDriver
+        animationIn={'slideInUp'}
+        animationInTiming={500}
+        style={styles.Modal}
+        onBackButtonPress={() => {
+          close ? close(false) : console.log('not close');
+        }}
+        onBackdropPress={() =>
+          close ? close(false) : console.log('not close')
+        }
+      >
+        <View style={styles.containerTitle}>
+          <TouchableOpacity style={styles.musk} onPress={() => close(false)} />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={[
+                Fonts.style.bold(Colors.light, Fonts.size.h6, 'left'),
+                styles.title,
+              ]}
+            >
+              {title}
+            </Text>
+            <TouchableOpacity onPress={() => close(false)}>
+              <Cancel
+                name={'cancel'}
+                size={30}
+                color={Colors.cancel}
+                style={{ marginRight: 20 }}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-        {children}
-      </View>
-    </Modal>
+        <View style={styles.container}>{children}</View>
+      </Modal>
+    </>
   );
 };
 export default ModalApp;
 
 const styles = StyleSheet.create({
   container: {
-    height: Metrics.screenHeight,
-    marginTop: 100,
+    backgroundColor: Colors.backgroundColor,
+    overflow: 'hidden',
   },
-  header: {
-    backgroundColor: Colors.light,
-    height: 40,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+  Modal: {
+    margin: 0,
+    justifyContent: 'flex-end',
+    zIndex: 99,
   },
-  cancel: { marginRight: 20 },
+  musk: {
+    backgroundColor: Colors.dark,
+    height: 7,
+    width: 40,
+    borderRadius: 4,
+    alignSelf: 'center',
+    zIndex: 1,
+  },
+  containerTitle: {
+    paddingTop: 20,
+    backgroundColor: Colors.backgroundColor,
+    borderTopEndRadius: 12,
+    borderTopStartRadius: 12,
+  },
+  title: {
+    marginLeft: 10,
+    marginVertical: 10,
+  },
 });

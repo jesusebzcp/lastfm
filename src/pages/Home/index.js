@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
 
 //Logic
@@ -8,7 +14,7 @@ import {
   resetSearch,
   searchArtistsAction,
 } from '../../flux/artists/actions';
-import { getTracks } from '../../flux/tracks/actions';
+import { getTracksInitial } from '../../flux/tracks/actions';
 
 //UI
 import { Colors, Fonts, Metrics } from '../../theme';
@@ -17,18 +23,30 @@ import { Colors, Fonts, Metrics } from '../../theme';
 import TopArtists from '../../components/TopArtists';
 import Search from '../../components/Search';
 import Tracks from '../../components/Tracks';
-import Pagination from '../../components/Pagination';
+import { setLoadingGlobal } from '../../flux/ui/actions';
+import Loading from '../../components/Loading';
 
 const Home = () => {
   const isMountedRef = useRef(null);
 
-  const { state, artistsDispatch, tracksDispatch } = useContext(StoreContext);
+  const { state, artistsDispatch, tracksDispatch, uiDispatch } = useContext(
+    StoreContext,
+  );
   const { artistsState, tracksState } = state;
   const { artists, searchArtists } = artistsState;
   const { tracks } = tracksState;
 
   const [pagination, setPagination] = useState(1);
   const [word, setWord] = useState('');
+
+  //Mount Component Data
+
+  const getDateApi = useCallback(async () => {
+    setLoadingGlobal(true, uiDispatch);
+    await getArtists(artistsDispatch);
+    await getTracksInitial(tracksDispatch);
+    setLoadingGlobal(false, uiDispatch);
+  }, [artistsDispatch, tracksDispatch, uiDispatch]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -43,64 +61,59 @@ const Home = () => {
 
   useEffect(() => {
     isMountedRef.current = true;
-    getArtists(artistsDispatch);
-    getTracks(tracksDispatch, pagination);
+    getDateApi();
     return () => {
       return () => (isMountedRef.current = false);
     };
-  }, [artistsDispatch, pagination, tracksDispatch]);
+  }, [getDateApi]);
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor={Colors.backgroundColor} />
-      <Text
-        style={[
-          Fonts.style.regular(Colors.light, Fonts.size.bigTitle, 'center'),
-
-          { marginVertical: 10 },
-        ]}
-      >
-        LastFm
+    <>
+      <View style={styles.container}>
+        <StatusBar backgroundColor={Colors.backgroundColor} />
         <Text
-          style={[Fonts.style.regular(Colors.gray, Fonts.size.h6, 'center')]}
+          style={[
+            Fonts.style.regular(Colors.light, Fonts.size.bigTitle, 'center'),
+
+            { marginVertical: 10 },
+          ]}
         >
-          app
+          LastFm
+          <Text
+            style={[Fonts.style.regular(Colors.gray, Fonts.size.h6, 'center')]}
+          >
+            app
+          </Text>
         </Text>
-      </Text>
-      <Search
-        placeholder={'Busca una canción...'}
-        setWord={setWord}
-        word={word}
-        searchArtists={searchArtists}
-        resetSearch={resetSearch}
-        dispatch={artistsDispatch}
-      />
-      {artists && artists.length > 0 && (
-        <TopArtists
-          title={'Artistas'}
-          artists={artists}
-          loading={artistsState.loading}
-          getArtists={() => getArtists(artistsDispatch)}
+        <Search
+          placeholder={'Busca una canción...'}
+          setWord={setWord}
+          word={word}
+          searchArtists={searchArtists}
+          resetSearch={resetSearch}
+          dispatch={artistsDispatch}
         />
-      )}
-      {tracks && tracks.length > 0 && (
-        <Tracks
-          next={() => setPagination(pagination + 1)}
-          setPagination={setPagination}
-          pagination={pagination}
-          tracks={tracks}
-          loading={tracksState.loading}
-          getTracks={() => getTracks(tracksDispatch)}
-        />
-      )}
-      <View style={{ position: 'absolute', alignSelf: 'center', bottom: 40 }}>
-        <Pagination
-          pagination={pagination}
-          next={() => setPagination(pagination + 1)}
-          back={() => setPagination(pagination === 1 ? 1 : pagination - 1)}
-        />
+        {artists && artists.length > 0 && (
+          <TopArtists
+            title={'Artistas'}
+            artists={artists}
+            loading={artistsState.loading}
+            getArtists={() => getArtists(artistsDispatch)}
+          />
+        )}
+        {tracks && tracks.length > 0 && (
+          <Tracks
+            setPagination={setPagination}
+            pagination={pagination}
+            tracks={tracks}
+            loading={tracksState.loading}
+            dispatch={tracksDispatch}
+            updateTracks={() => getTracksInitial(tracksDispatch)}
+          />
+        )}
       </View>
-    </View>
+      <Loading />
+    </>
   );
 };
 const styles = StyleSheet.create({

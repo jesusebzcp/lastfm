@@ -8,7 +8,7 @@ export default {
       .utc(moment.duration(value, 'minutes').asMilliseconds())
       .format('HH:mm');
 
-    const hours = `${h} ${value >= 60 ? 'hrs' : 'min'}`;
+    const hours = `${h} ${value >= 60 ? 'mins' : 'min'}`;
 
     return hours;
   },

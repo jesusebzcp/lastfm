@@ -170,8 +170,10 @@ const DetailArtist = ({ route }) => {
           <Button text={'Detail'} action={() => setOpenModal(true)} />
         </View>
       </View>
-      <ModalApp open={openModal} close={setOpenModal}>
-        <WebView source={{ uri: track.url }} />
+      <ModalApp open={openModal} close={setOpenModal} title={track.name}>
+        <View style={styles.containerWebView}>
+          <WebView source={{ uri: track.url }} />
+        </View>
       </ModalApp>
     </>
   );
@@ -197,5 +199,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 10,
     marginTop: 20,
+  },
+  containerWebView: {
+    height: Metrics.screenHeight * 0.8,
   },
 });

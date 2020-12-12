@@ -1,76 +1,32 @@
 import React from 'react';
-import {
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  View,
-  RefreshControl,
-  ActivityIndicator,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import { useNavigation } from '@react-navigation/native';
+import { Text, FlatList, StyleSheet, View, RefreshControl } from 'react-native';
 
 //Theme
 import { Colors, Fonts } from '../../theme';
+import { getTracks } from '../../flux/tracks/actions';
+import FooterLoading from '../FooterLoading';
+import RenderTracks from './RenderTracks';
 
-const Tracks = ({ tracks, loading, getTracks, next }) => {
-  const navigation = useNavigation();
-
-  const RenderTracks = ({ item }) => {
-    const { image, name, artist } = item;
-    const imageUrl = Object.values(image[0]);
-    return (
-      <TouchableOpacity
-        style={styles.containerTrack}
-        onPress={() => navigation.navigate('DetailTrack', { track: item })}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image style={styles.img} source={{ uri: imageUrl[0] }} />
-          <View>
-            <Text
-              style={[
-                Fonts.style.bold(Colors.light, Fonts.size.medium, 'left'),
-              ]}
-            >
-              {name}
-            </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon name={'user'} size={10} color={Colors.light} />
-
-              <Text
-                style={[
-                  Fonts.style.regular(Colors.gray, Fonts.size.tiny),
-                  { marginLeft: 2 },
-                ]}
-              >
-                {artist.name}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <Icon name={'play'} size={15} color={Colors.light} />
-      </TouchableOpacity>
-    );
+const Tracks = ({
+  tracks,
+  loading,
+  setPagination,
+  pagination,
+  dispatch,
+  updateTracks,
+}) => {
+  const handlePagination = async () => {
+    let paginated = pagination + 1;
+    await getTracks(dispatch, paginated);
+    setPagination(paginated);
   };
-  const renderFooter = () => {
-    if (!loading) {
-      return null;
-    }
-    return (
-      <View
-        style={{
-          paddingBottom: 80,
-        }}
-      >
-        <ActivityIndicator animating size="small" color={Colors.light} />
-      </View>
-    );
+
+  const handleFooter = () => {
+    return <FooterLoading loading={loading} />;
   };
 
   return (
-    <View style={{ marginLeft: 10, paddingBottom: 280 }}>
+    <View style={styles.container}>
       <Text
         style={[
           Fonts.style.bold(Colors.light, Fonts.size.medium, 'left'),
@@ -84,15 +40,18 @@ const Tracks = ({ tracks, loading, getTracks, next }) => {
         showsHorizontalScrollIndicator={false}
         scrollEnabled
         data={tracks}
-        ListFooterComponent={() => renderFooter()}
-        onEndReached={() => next()}
-        onEndReachedThreshold={0.8}
+        ListFooterComponent={() => handleFooter()}
+        onEndReached={() => handlePagination()}
+        onEndReachedThreshold={0.1}
         keyExtractor={(item, index) => String(index)}
         renderItem={({ item }) => {
           return <RenderTracks item={item} />;
         }}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={() => getTracks()} />
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={() => updateTracks()}
+          />
         }
       />
     </View>
@@ -102,20 +61,5 @@ const Tracks = ({ tracks, loading, getTracks, next }) => {
 export default Tracks;
 
 const styles = StyleSheet.create({
-  containerTrack: {
-    marginHorizontal: 20,
-    marginVertical: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.secondary,
-    padding: 10,
-    borderRadius: 5,
-    justifyContent: 'space-between',
-  },
-  img: {
-    height: 40,
-    width: 40,
-    backgroundColor: 'green',
-    marginRight: 10,
-  },
+  container: { marginLeft: 10, paddingBottom: 280 },
 });
